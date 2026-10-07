@@ -1,193 +1,740 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#0b2d5c" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0b2d5c">
   <title>XC Meet Split Timer</title>
-  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="manifest" href="manifest.webmanifest">
+
   <style>
-    :root { --navy:#0b2d5c; --gold:#f2c94c; --bg:#f5f7fb; --card:#fff; --text:#14213d; --danger:#b42318; --ok:#117a43; }
-    * { box-sizing: border-box; }
-    body { margin:0; font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; background:var(--bg); color:var(--text); }
-    header { background:var(--navy); color:white; padding:14px 16px; position:sticky; top:0; z-index:10; }
+    :root {
+      --navy:#0b2d5c;
+      --gold:#f2c94c;
+      --bg:#f5f7fb;
+      --card:#fff;
+      --text:#14213d;
+      --danger:#b42318;
+      --ok:#117a43;
+    }
+
+    * { box-sizing:border-box; }
+
+    body {
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+
+    header {
+      background:var(--navy);
+      color:white;
+      padding:14px 16px;
+      position:sticky;
+      top:0;
+      z-index:10;
+    }
+
     header h1 { margin:0; font-size:22px; }
     header .sub { opacity:.85; font-size:13px; margin-top:3px; }
-    main { max-width:1000px; margin:auto; padding:16px; }
-    .panel { background:var(--card); border-radius:16px; padding:16px; margin-bottom:14px; box-shadow:0 2px 12px rgba(0,0,0,.07); }
+
+    main {
+      max-width:1000px;
+      margin:auto;
+      padding:16px;
+    }
+
+    .panel {
+      background:var(--card);
+      border-radius:16px;
+      padding:16px;
+      margin-bottom:14px;
+      box-shadow:0 2px 12px rgba(0,0,0,.07);
+    }
+
     .grid { display:grid; gap:10px; }
     .grid.two { grid-template-columns:repeat(2,minmax(0,1fr)); }
-    .grid.four { grid-template-columns:repeat(4,minmax(0,1fr)); }
-    label { display:block; font-weight:700; margin-bottom:6px; }
+
+    label {
+      display:block;
+      font-weight:700;
+      margin-bottom:6px;
+    }
+
     select,input,button,textarea { font:inherit; }
-    select,input[type=text] { width:100%; padding:12px; border:1px solid #cfd6e4; border-radius:10px; background:white; }
-    button { border:0; border-radius:12px; padding:13px 16px; font-weight:800; cursor:pointer; }
+
+    select,input[type=text] {
+      width:100%;
+      padding:12px;
+      border:1px solid #cfd6e4;
+      border-radius:10px;
+      background:white;
+    }
+
+    button {
+      border:0;
+      border-radius:12px;
+      padding:13px 16px;
+      font-weight:800;
+      cursor:pointer;
+      touch-action:manipulation;
+    }
+
     button.primary { background:var(--navy); color:white; }
     button.gold { background:var(--gold); color:#1f2a44; }
     button.secondary { background:#e9edf5; color:#1f2a44; }
     button.danger { background:#ffe5e3; color:var(--danger); }
     button:disabled { opacity:.45; cursor:not-allowed; }
-    .race-title { font-size:20px; font-weight:900; text-transform:uppercase; }
-    .timer { font-variant-numeric:tabular-nums; font-size:54px; font-weight:900; text-align:center; letter-spacing:1px; margin:12px 0; }
-    .statusbar { display:flex; justify-content:space-between; gap:10px; flex-wrap:wrap; font-weight:700; }
-    .athletes { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; }
-    .athlete-btn { min-height:82px; background:white; border:3px solid var(--navy); color:var(--navy); font-size:22px; text-align:left; padding:12px 14px; }
-    .athlete-btn .last { display:block; font-size:26px; line-height:1; }
-    .athlete-btn .first { display:block; font-size:15px; opacity:.8; margin-top:7px; }
-    .athlete-btn:active { transform:scale(.985); background:#eef4ff; }
-    .recorded-list { display:grid; gap:7px; }
-    .record-row { display:grid; grid-template-columns:1fr auto auto; align-items:center; gap:8px; background:#f1f4f8; border-radius:10px; padding:10px 12px; }
-    .record-row .time { font-weight:900; font-variant-numeric:tabular-nums; }
+
+    .race-title {
+      font-size:20px;
+      font-weight:900;
+      text-transform:uppercase;
+    }
+
+    .timer {
+      font-variant-numeric:tabular-nums;
+      font-size:54px;
+      font-weight:900;
+      text-align:center;
+      letter-spacing:1px;
+      margin:12px 0;
+    }
+
+    .statusbar {
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      flex-wrap:wrap;
+      font-weight:700;
+    }
+
+    .toolbar {
+      display:flex;
+      gap:8px;
+      flex-wrap:wrap;
+    }
+
     .small { font-size:13px; opacity:.75; }
     .hidden { display:none !important; }
-    .warning { background:#fff4cc; border:1px solid #f0d66f; border-radius:10px; padding:10px 12px; }
-    .success { background:#e7f6ee; color:#0f5f36; border-radius:10px; padding:10px 12px; }
-    .toolbar { display:flex; gap:8px; flex-wrap:wrap; }
-    table { width:100%; border-collapse:collapse; }
-    th,td { padding:9px; border-bottom:1px solid #e0e5ef; text-align:left; }
-    .modal { position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; padding:18px; z-index:100; }
-    .modal-card { background:white; width:min(520px,100%); border-radius:16px; padding:18px; }
-    .modal-card h3 { margin-top:0; }
-    @media (max-width:680px){ .grid.four{grid-template-columns:1fr 1fr;} .athletes{grid-template-columns:1fr 1fr;} .timer{font-size:46px;} }
+
+    .warning {
+      background:#fff4cc;
+      border:1px solid #f0d66f;
+      border-radius:10px;
+      padding:10px 12px;
+    }
+
+    /* QUICK CAPTURE */
+
+    .quick-card {
+      border:3px solid var(--navy);
+      border-radius:18px;
+      padding:14px;
+      margin:16px 0 20px;
+      background:#eef4ff;
+    }
+
+    .quick-heading {
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .quick-heading h2 { margin:0; }
+
+    .capture-count {
+      font-weight:900;
+      font-size:18px;
+    }
+
+    .capture-btn {
+      width:100%;
+      min-height:190px;
+      margin-top:12px;
+      background:var(--gold);
+      color:#17213a;
+      border:4px solid #d3a900;
+      font-size:38px;
+      line-height:1;
+      box-shadow:0 6px 0 #b99500;
+      user-select:none;
+      -webkit-user-select:none;
+    }
+
+    .capture-btn:active {
+      transform:translateY(4px);
+      box-shadow:0 2px 0 #b99500;
+    }
+
+    .capture-btn.flash {
+      background:#d9f8e7;
+      border-color:var(--ok);
+    }
+
+    .capture-sub {
+      display:block;
+      font-size:15px;
+      margin-top:12px;
+    }
+
+    .voice-active {
+      background:#e7f6ee !important;
+      color:#0f5f36 !important;
+    }
+
+    .voice-dot {
+      display:inline-block;
+      width:10px;
+      height:10px;
+      border-radius:50%;
+      background:#d92d20;
+      margin-right:6px;
+    }
+
+    .audio-card {
+      margin-top:10px;
+      background:white;
+      border:1px solid #d8dfeb;
+      border-radius:12px;
+      padding:10px;
+    }
+
+    audio {
+      width:100%;
+      margin-top:8px;
+    }
+
+    .assign-banner {
+      margin-top:12px;
+      background:#fff4cc;
+      border:2px solid #f0d66f;
+      border-radius:12px;
+      padding:12px;
+      font-weight:900;
+      text-align:center;
+    }
+
+    .unassigned {
+      display:grid;
+      gap:8px;
+      margin-top:10px;
+    }
+
+    .capture-row {
+      display:grid;
+      grid-template-columns:auto 1fr auto;
+      gap:10px;
+      align-items:center;
+      background:white;
+      border:1px solid #d8dfeb;
+      border-radius:12px;
+      padding:10px;
+    }
+
+    .capture-number {
+      font-size:19px;
+      font-weight:900;
+    }
+
+    .capture-time {
+      font-size:25px;
+      font-weight:900;
+      font-variant-numeric:tabular-nums;
+    }
+
+    /* ATHLETES */
+
+    .athletes {
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
+
+    .athlete-btn {
+      min-height:82px;
+      background:white;
+      border:3px solid var(--navy);
+      color:var(--navy);
+      font-size:22px;
+      text-align:left;
+      padding:12px 14px;
+    }
+
+    .athlete-btn .last {
+      display:block;
+      font-size:26px;
+      line-height:1;
+    }
+
+    .athlete-btn .first {
+      display:block;
+      font-size:15px;
+      opacity:.8;
+      margin-top:7px;
+    }
+
+    .athlete-btn:active {
+      transform:scale(.985);
+      background:#eef4ff;
+    }
+
+    .recorded-list {
+      display:grid;
+      gap:7px;
+    }
+
+    .record-row {
+      display:grid;
+      grid-template-columns:1fr auto auto;
+      align-items:center;
+      gap:8px;
+      background:#f1f4f8;
+      border-radius:10px;
+      padding:10px 12px;
+    }
+
+    .record-row .time {
+      font-weight:900;
+      font-variant-numeric:tabular-nums;
+    }
+
+    table {
+      width:100%;
+      border-collapse:collapse;
+    }
+
+    th,td {
+      padding:9px;
+      border-bottom:1px solid #e0e5ef;
+      text-align:left;
+    }
+
+    .modal {
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.45);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:18px;
+      z-index:100;
+    }
+
+    .modal-card {
+      background:white;
+      width:min(520px,100%);
+      border-radius:16px;
+      padding:18px;
+    }
+
+    @media(max-width:680px) {
+      .athletes { grid-template-columns:1fr 1fr; }
+      .timer { font-size:46px; }
+      .capture-btn {
+        min-height:210px;
+        font-size:40px;
+      }
+    }
   </style>
 </head>
+
 <body>
+
 <header>
   <h1>XC Meet Split Timer</h1>
-  <div class="sub">Offline-ready • Mile 1 / Mile 2 • iPad friendly</div>
+  <div class="sub">
+    Offline-ready • Quick Capture + Voice • Mile 1 / Mile 2
+  </div>
 </header>
+
 <main>
-  <section class="panel" id="setupPanel">
-    <div class="grid two">
-      <div>
-        <label for="meetName">Meet Name</label>
-        <input id="meetName" type="text" placeholder="Example: Clemens Invitational" />
-      </div>
-      <div>
-        <label for="raceLevel">Race Level</label>
-        <select id="raceLevel">
-          <option>Varsity Girls</option>
-          <option>Varsity Boys</option>
-          <option>JV Girls</option>
-          <option>JV Boys</option>
-        </select>
-      </div>
+
+<section class="panel" id="setupPanel">
+
+  <div class="grid two">
+
+    <div>
+      <label>Meet Name</label>
+      <input id="meetName" type="text"
+             placeholder="Example: Clemens Invitational">
     </div>
-    <div class="grid two" style="margin-top:10px;">
-      <div>
-        <label for="checkpoint">Checkpoint</label>
-        <select id="checkpoint">
-          <option value="Mile 1">Mile 1</option>
-          <option value="Mile 2">Mile 2</option>
-        </select>
-      </div>
-      <div>
-        <label for="rosterSelect">Roster</label>
-        <select id="rosterSelect"></select>
-      </div>
+
+    <div>
+      <label>Race Level</label>
+      <select id="raceLevel">
+        <option>Varsity Girls</option>
+        <option>Varsity Boys</option>
+        <option>JV Girls</option>
+        <option>JV Boys</option>
+      </select>
     </div>
+
+  </div>
+
+  <div class="grid two" style="margin-top:10px;">
+
+    <div>
+      <label>Checkpoint</label>
+      <select id="checkpoint">
+        <option value="Mile 1">Mile 1</option>
+        <option value="Mile 2">Mile 2</option>
+      </select>
+    </div>
+
+    <div>
+      <label>Roster</label>
+      <select id="rosterSelect"></select>
+    </div>
+
+  </div>
+
+  <div class="toolbar" style="margin-top:12px;">
+    <button class="primary" id="loadRaceBtn">Load Race</button>
+    <button class="secondary" id="manageRosterBtn">Manage Rosters</button>
+    <button class="secondary" id="historyBtn">Saved Results</button>
+  </div>
+
+  <div id="offlineMsg" class="small" style="margin-top:10px;"></div>
+
+</section>
+
+
+<section class="panel hidden" id="racePanel">
+
+  <div class="statusbar">
+
+    <div>
+      <div class="race-title" id="raceTitle"></div>
+      <div id="meetTitle" class="small"></div>
+    </div>
+
+    <div style="text-align:right;">
+      <div id="checkpointTitle" class="race-title"></div>
+      <div id="countStatus" class="small"></div>
+    </div>
+
+  </div>
+
+  <div class="timer" id="timer">00:00.0</div>
+
+  <div class="toolbar"
+       style="justify-content:center;margin-bottom:10px;">
+
+    <button class="gold" id="startBtn">
+      START RACE
+    </button>
+
+    <button class="secondary" id="pauseBtn" disabled>
+      PAUSE
+    </button>
+
+    <button class="danger" id="resetBtn">
+      RESET RACE
+    </button>
+
+  </div>
+
+  <div class="toolbar"
+       style="justify-content:center;margin-bottom:14px;">
+
+    <button class="secondary" id="minus1Btn">
+      Start -1 sec
+    </button>
+
+    <button class="secondary" id="plus1Btn">
+      Start +1 sec
+    </button>
+
+    <button class="secondary" id="undoBtn" disabled>
+      UNDO LAST ACTION
+    </button>
+
+  </div>
+
+  <div id="raceWarning" class="warning hidden"></div>
+
+
+  <!-- QUICK CAPTURE -->
+
+  <div class="quick-card">
+
+    <div class="quick-heading">
+
+      <div>
+        <h2>⚡ Quick Capture</h2>
+
+        <div class="small">
+          Say the athlete's name out loud,
+          then tap as the athlete crosses.
+        </div>
+      </div>
+
+      <div class="capture-count" id="captureCount">
+        0 unassigned
+      </div>
+
+    </div>
+
+
     <div class="toolbar" style="margin-top:12px;">
-      <button class="primary" id="loadRaceBtn">Load Race</button>
-      <button class="secondary" id="manageRosterBtn">Manage Rosters</button>
-      <button class="secondary" id="historyBtn">Saved Results</button>
-    </div>
-    <div id="offlineMsg" class="small" style="margin-top:10px;"></div>
-  </section>
 
-  <section class="panel hidden" id="racePanel">
-    <div class="statusbar">
-      <div>
-        <div class="race-title" id="raceTitle"></div>
-        <div id="meetTitle" class="small"></div>
-      </div>
-      <div style="text-align:right;">
-        <div id="checkpointTitle" class="race-title"></div>
-        <div id="countStatus" class="small"></div>
-      </div>
-    </div>
-    <div class="timer" id="timer">00:00.0</div>
-    <div class="toolbar" style="justify-content:center; margin-bottom:14px;">
-      <button class="gold" id="startBtn">START RACE</button>
-      <button class="secondary" id="pauseBtn" disabled>PAUSE</button>
-      <button class="danger" id="resetBtn">RESET RACE</button>
-    </div>
-    <div class="toolbar" style="justify-content:center; margin-bottom:14px;">
-      <button class="secondary" id="minus1Btn">Start -1 sec</button>
-      <button class="secondary" id="plus1Btn">Start +1 sec</button>
-      <button class="secondary" id="undoBtn" disabled>UNDO LAST TAP</button>
-    </div>
-    <div id="raceWarning" class="warning hidden"></div>
+      <button class="primary" id="voiceBtn">
+        🎤 START VOICE RECORDING
+      </button>
 
-    <h2>Waiting to Record</h2>
-    <div id="athleteButtons" class="athletes"></div>
+      <button class="secondary hidden" id="stopVoiceBtn">
+        ⏹ STOP VOICE
+      </button>
 
-    <div id="recordedSection" class="hidden">
-      <h2>Recorded</h2>
-      <div id="recordedList" class="recorded-list"></div>
     </div>
 
-    <div class="toolbar" style="margin-top:18px;">
-      <button class="primary" id="saveRaceBtn">Save This Checkpoint</button>
-      <button class="secondary" id="backBtn">Back to Setup</button>
+    <div id="voiceStatus" class="small"
+         style="margin-top:8px;">
+      Voice recording is optional.
+      Allow microphone access when prompted.
     </div>
-  </section>
 
-  <section class="panel hidden" id="rosterPanel">
-    <h2>Manage Rosters</h2>
-    <p class="small">Create each race roster before leaving for the meet. These names stay saved on the iPad and remain available offline.</p>
-    <div class="grid two">
-      <div>
-        <label for="rosterName">Roster Name</label>
-        <select id="rosterName">
-          <option>Varsity Girls</option>
-          <option>Varsity Boys</option>
-          <option>JV Girls</option>
-          <option>JV Boys</option>
-        </select>
-      </div>
-      <div style="align-self:end;">
-        <button class="secondary" id="loadRosterEditBtn">Load Existing</button>
-      </div>
-    </div>
-    <label style="margin-top:12px;" for="rosterText">Athletes — one per line</label>
-    <textarea id="rosterText" rows="14" style="width:100%;padding:12px;border:1px solid #cfd6e4;border-radius:10px;" placeholder="Garcia, Mia\nJohnson, Emma\nMartinez, Ana"></textarea>
-    <div class="toolbar" style="margin-top:12px;">
-      <button class="primary" id="saveRosterBtn">Save Roster</button>
-      <button class="secondary" id="rosterBackBtn">Back</button>
-    </div>
-  </section>
+    <div id="audioArea"></div>
 
-  <section class="panel hidden" id="historyPanel">
-    <h2>Saved Results</h2>
-    <div class="toolbar" style="margin-bottom:12px;">
-      <button class="gold" id="exportBtn">Export CSV</button>
-      <button class="secondary" id="historyBackBtn">Back</button>
-      <button class="danger" id="clearHistoryBtn">Clear Saved Results</button>
+
+    <button class="capture-btn" id="captureBtn" disabled>
+
+      TAP SPLIT
+
+      <span class="capture-sub">
+        Each tap saves the exact crossing time
+      </span>
+
+    </button>
+
+
+    <div id="assignBanner"
+         class="assign-banner hidden">
     </div>
-    <div style="overflow:auto;">
-      <table>
-        <thead><tr><th>Meet</th><th>Race</th><th>Checkpoint</th><th>Athlete</th><th>Split</th><th>Saved</th></tr></thead>
-        <tbody id="historyBody"></tbody>
-      </table>
+
+    <div id="unassignedList"
+         class="unassigned">
     </div>
-  </section>
+
+  </div>
+
+
+  <h2>Waiting to Record</h2>
+
+  <div class="small"
+       style="margin:-8px 0 10px;">
+
+    If a Quick Capture time is waiting,
+    tapping an athlete assigns the oldest
+    captured time to that athlete.
+
+    If no captured time is waiting,
+    tapping the athlete records the current time.
+
+  </div>
+
+  <div id="athleteButtons"
+       class="athletes">
+  </div>
+
+
+  <div id="recordedSection"
+       class="hidden">
+
+    <h2>Recorded</h2>
+
+    <div id="recordedList"
+         class="recorded-list">
+    </div>
+
+  </div>
+
+
+  <div class="toolbar"
+       style="margin-top:18px;">
+
+    <button class="primary" id="saveRaceBtn">
+      Save This Checkpoint
+    </button>
+
+    <button class="secondary" id="backBtn">
+      Back to Setup
+    </button>
+
+  </div>
+
+</section>
+
+
+<section class="panel hidden" id="rosterPanel">
+
+  <h2>Manage Rosters</h2>
+
+  <p class="small">
+    These names stay saved on this device
+    and remain available offline.
+  </p>
+
+  <div class="grid two">
+
+    <div>
+
+      <label>Roster Name</label>
+
+      <select id="rosterName">
+        <option>Varsity Girls</option>
+        <option>Varsity Boys</option>
+        <option>JV Girls</option>
+        <option>JV Boys</option>
+      </select>
+
+    </div>
+
+    <div style="align-self:end;">
+
+      <button class="secondary"
+              id="loadRosterEditBtn">
+        Load Existing
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <label style="margin-top:12px;">
+    Athletes — one per line
+  </label>
+
+  <textarea id="rosterText"
+            rows="14"
+            style="width:100%;
+                   padding:12px;
+                   border:1px solid #cfd6e4;
+                   border-radius:10px;"
+            placeholder="Garcia, Mia&#10;Johnson, Emma&#10;Martinez, Ana">
+  </textarea>
+
+
+  <div class="toolbar"
+       style="margin-top:12px;">
+
+    <button class="primary"
+            id="saveRosterBtn">
+      Save Roster
+    </button>
+
+    <button class="secondary"
+            id="rosterBackBtn">
+      Back
+    </button>
+
+  </div>
+
+</section>
+
+
+<section class="panel hidden"
+         id="historyPanel">
+
+  <h2>Saved Results</h2>
+
+  <div class="toolbar"
+       style="margin-bottom:12px;">
+
+    <button class="gold"
+            id="exportBtn">
+      Export CSV
+    </button>
+
+    <button class="secondary"
+            id="historyBackBtn">
+      Back
+    </button>
+
+    <button class="danger"
+            id="clearHistoryBtn">
+      Clear Saved Results
+    </button>
+
+  </div>
+
+  <div style="overflow:auto;">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Meet</th>
+          <th>Race</th>
+          <th>Checkpoint</th>
+          <th>Athlete</th>
+          <th>Split</th>
+          <th>Saved</th>
+        </tr>
+      </thead>
+
+      <tbody id="historyBody"></tbody>
+
+    </table>
+
+  </div>
+
+</section>
+
 </main>
 
-<div id="editModal" class="modal hidden">
+
+<div id="editModal"
+     class="modal hidden">
+
   <div class="modal-card">
+
     <h3>Edit Split</h3>
-    <div id="editAthlete" style="font-weight:800;margin-bottom:10px;"></div>
-    <label for="editTime">Time (MM:SS.t)</label>
-    <input id="editTime" type="text" placeholder="06:24.3" />
-    <div class="toolbar" style="margin-top:12px;">
-      <button class="primary" id="saveEditBtn">Save</button>
-      <button class="secondary" id="cancelEditBtn">Cancel</button>
+
+    <div id="editAthlete"
+         style="font-weight:800;
+                margin-bottom:10px;">
     </div>
+
+    <label>Time (MM:SS.t)</label>
+
+    <input id="editTime"
+           type="text"
+           placeholder="06:24.3">
+
+    <div class="toolbar"
+         style="margin-top:12px;">
+
+      <button class="primary"
+              id="saveEditBtn">
+        Save
+      </button>
+
+      <button class="secondary"
+              id="cancelEditBtn">
+        Cancel
+      </button>
+
+    </div>
+
   </div>
+
 </div>
 
 <script>
-const LEVELS = ["Varsity Girls","Varsity Boys","JV Girls","JV Boys"];
+
+const LEVELS = [
+  "Varsity Girls",
+  "Varsity Boys",
+  "JV Girls",
+  "JV Boys"
+];
+
 const LS_ROSTERS = "xc_rosters_v1";
 const LS_RESULTS = "xc_results_v1";
 
@@ -195,157 +742,2139 @@ let race = null;
 let raf = null;
 let editingIndex = null;
 
-const $ = id => document.getElementById(id);
-const getRosters = () => JSON.parse(localStorage.getItem(LS_ROSTERS) || "{}");
-const setRosters = data => localStorage.setItem(LS_ROSTERS, JSON.stringify(data));
-const getResults = () => JSON.parse(localStorage.getItem(LS_RESULTS) || "[]");
-const setResults = data => localStorage.setItem(LS_RESULTS, JSON.stringify(data));
+let mediaRecorder = null;
+let mediaStream = null;
+let audioChunks = [];
+let audioUrl = null;
 
-function formatElapsed(ms){
+const $ = id =>
+  document.getElementById(id);
+
+const getRosters = () =>
+  JSON.parse(
+    localStorage.getItem(LS_ROSTERS) || "{}"
+  );
+
+const setRosters = data =>
+  localStorage.setItem(
+    LS_ROSTERS,
+    JSON.stringify(data)
+  );
+
+const getResults = () =>
+  JSON.parse(
+    localStorage.getItem(LS_RESULTS) || "[]"
+  );
+
+const setResults = data =>
+  localStorage.setItem(
+    LS_RESULTS,
+    JSON.stringify(data)
+  );
+
+
+function formatElapsed(ms) {
+
   ms = Math.max(0, ms);
-  const totalTenths = Math.floor(ms/100);
-  const tenths = totalTenths % 10;
-  const totalSeconds = Math.floor(totalTenths/10);
-  const seconds = totalSeconds % 60;
-  const minutes = Math.floor(totalSeconds/60);
-  return `${String(minutes).padStart(2,'0')}:${String(seconds).padStart(2,'0')}.${tenths}`;
+
+  const totalTenths =
+    Math.floor(ms / 100);
+
+  const tenths =
+    totalTenths % 10;
+
+  const totalSeconds =
+    Math.floor(totalTenths / 10);
+
+  const seconds =
+    totalSeconds % 60;
+
+  const minutes =
+    Math.floor(totalSeconds / 60);
+
+  return (
+    String(minutes).padStart(2,"0") +
+    ":" +
+    String(seconds).padStart(2,"0") +
+    "." +
+    tenths
+  );
 }
-function parseTime(s){
-  const m = String(s).trim().match(/^(\d{1,3}):(\d{2})(?:\.(\d))?$/);
-  if(!m) return null;
-  const min = +m[1], sec = +m[2], tenth = +(m[3]||0);
-  if(sec>59) return null;
-  return ((min*60)+sec)*1000 + tenth*100;
+
+
+function parseTime(s) {
+
+  const m =
+    String(s)
+      .trim()
+      .match(
+        /^(\d{1,3}):(\d{2})(?:\.(\d))?$/
+      );
+
+  if (!m) return null;
+
+  const min = +m[1];
+  const sec = +m[2];
+  const tenth = +(m[3] || 0);
+
+  if (sec > 59) return null;
+
+  return (
+    ((min * 60) + sec) * 1000 +
+    tenth * 100
+  );
 }
-function nowElapsed(){
-  if(!race) return 0;
-  if(race.running) return race.accumulated + (performance.now()-race.startedPerf) + race.startAdjust;
-  return race.accumulated + race.startAdjust;
+
+
+function nowElapsed() {
+
+  if (!race) return 0;
+
+  if (race.running) {
+
+    return (
+      race.accumulated +
+      (performance.now() -
+       race.startedPerf) +
+      race.startAdjust
+    );
+
+  }
+
+  return (
+    race.accumulated +
+    race.startAdjust
+  );
 }
-function tick(){
-  $("timer").textContent = formatElapsed(nowElapsed());
-  if(race?.running) raf = requestAnimationFrame(tick);
+
+
+function tick() {
+
+  $("timer").textContent =
+    formatElapsed(nowElapsed());
+
+  if (race?.running) {
+    raf =
+      requestAnimationFrame(tick);
+  }
 }
-function refreshRosterSelect(){
-  const rosters = getRosters();
-  const s = $("rosterSelect"); s.innerHTML='';
-  LEVELS.forEach(level=>{
-    const o=document.createElement('option'); o.value=level; o.textContent=`${level} (${(rosters[level]||[]).length})`; s.appendChild(o);
+
+
+function escapeHtml(s) {
+
+  return String(s).replace(
+    /[&<>"']/g,
+    c => ({
+      "&":"&amp;",
+      "<":"&lt;",
+      ">":"&gt;",
+      '"':"&quot;",
+      "'":"&#039;"
+    }[c])
+  );
+}
+
+
+function normalizeName(line) {
+  return line
+    .trim()
+    .replace(/\s+/g," ");
+}
+
+
+function splitName(name) {
+
+  if (name.includes(",")) {
+
+    const [last,...rest] =
+      name.split(",");
+
+    return {
+      last:last.trim(),
+      first:rest.join(",").trim()
+    };
+
+  }
+
+  const p =
+    name.trim().split(" ");
+
+  return {
+    last:p.pop() || "",
+    first:p.join(" ")
+  };
+}
+
+
+function showWarning(text) {
+
+  $("raceWarning").textContent =
+    text;
+
+  $("raceWarning")
+    .classList
+    .remove("hidden");
+}
+
+
+function hideWarning() {
+
+  $("raceWarning")
+    .classList
+    .add("hidden");
+}
+
+
+function refreshRosterSelect() {
+
+  const rosters =
+    getRosters();
+
+  const s =
+    $("rosterSelect");
+
+  s.innerHTML = "";
+
+  LEVELS.forEach(level => {
+
+    const o =
+      document.createElement("option");
+
+    o.value = level;
+
+    o.textContent =
+      level +
+      " (" +
+      (rosters[level] || []).length +
+      ")";
+
+    s.appendChild(o);
+
   });
-  s.value = $("raceLevel").value;
+
+  s.value =
+    $("raceLevel").value;
 }
-function normalizeName(line){ return line.trim().replace(/\s+/g,' '); }
-function splitName(name){
-  if(name.includes(',')){ const [last,...rest]=name.split(','); return {last:last.trim(), first:rest.join(',').trim()}; }
-  const p=name.trim().split(' '); return {last:p.pop()||'', first:p.join(' ')};
-}
-function renderRace(){
-  $("raceTitle").textContent = race.level;
-  $("checkpointTitle").textContent = race.checkpoint;
-  $("meetTitle").textContent = race.meet || "Unnamed Meet";
-  const waiting = race.athletes.filter(a=>!a.recorded);
-  $("countStatus").textContent = `${race.athletes.length-waiting.length} of ${race.athletes.length} recorded`;
-  const wrap=$("athleteButtons"); wrap.innerHTML='';
-  waiting.forEach(a=>{
-    const n=splitName(a.name);
-    const b=document.createElement('button'); b.className='athlete-btn';
-    b.innerHTML=`<span class="last">${escapeHtml(n.last.toUpperCase())}</span><span class="first">${escapeHtml(n.first)}</span>`;
-    b.onclick=()=>recordAthlete(a.id);
-    wrap.appendChild(b);
+  function renderRace() {
+
+  $("raceTitle").textContent =
+    race.level;
+
+  $("checkpointTitle").textContent =
+    race.checkpoint;
+
+  $("meetTitle").textContent =
+    race.meet || "Unnamed Meet";
+
+
+  const waiting =
+    race.athletes.filter(
+      a => !a.recorded
+    );
+
+  $("countStatus").textContent =
+    (race.athletes.length -
+     waiting.length) +
+    " of " +
+    race.athletes.length +
+    " recorded";
+
+
+  /* QUICK CAPTURE TIMES */
+
+  const unassigned =
+    race.quickCaptures
+      .filter(
+        c => !c.assignedAthleteId
+      )
+      .sort(
+        (a,b) => a.order - b.order
+      );
+
+
+  $("captureCount").textContent =
+    unassigned.length +
+    " unassigned";
+
+
+  if (unassigned.length) {
+
+    $("assignBanner")
+      .classList
+      .remove("hidden");
+
+    $("assignBanner").textContent =
+      "NEXT: " +
+      formatElapsed(
+        unassigned[0].splitMs
+      ) +
+      " — tap the athlete who crossed at this time";
+
+  } else {
+
+    $("assignBanner")
+      .classList
+      .add("hidden");
+
+  }
+
+
+  const captureList =
+    $("unassignedList");
+
+  captureList.innerHTML = "";
+
+
+  unassigned.forEach(
+    (capture,index) => {
+
+      const row =
+        document.createElement("div");
+
+      row.className =
+        "capture-row";
+
+
+      row.innerHTML = `
+
+        <div class="capture-number">
+          #${capture.order}
+        </div>
+
+        <div>
+
+          <div class="capture-time">
+            ${formatElapsed(
+              capture.splitMs
+            )}
+          </div>
+
+          <div class="small">
+            ${
+              index === 0
+              ? "ASSIGN THIS ONE NEXT"
+              : "Waiting"
+            }
+          </div>
+
+        </div>
+
+        <button class="danger">
+          Delete
+        </button>
+
+      `;
+
+
+      row.querySelector("button")
+        .onclick =
+        () =>
+          deleteCapture(
+            capture.id
+          );
+
+
+      captureList.appendChild(row);
+
+    }
+  );
+
+
+  /* ATHLETE BUTTONS */
+
+  const wrap =
+    $("athleteButtons");
+
+  wrap.innerHTML = "";
+
+
+  waiting.forEach(a => {
+
+    const n =
+      splitName(a.name);
+
+    const button =
+      document.createElement("button");
+
+    button.className =
+      "athlete-btn";
+
+
+    button.innerHTML = `
+
+      <span class="last">
+        ${escapeHtml(
+          n.last.toUpperCase()
+        )}
+      </span>
+
+      <span class="first">
+        ${escapeHtml(n.first)}
+      </span>
+
+    `;
+
+
+    button.onclick =
+      () =>
+        athleteTap(a.id);
+
+
+    wrap.appendChild(button);
+
   });
-  const rec=race.athletes.filter(a=>a.recorded).sort((a,b)=>a.splitMs-b.splitMs);
-  $("recordedSection").classList.toggle('hidden', rec.length===0);
-  const list=$("recordedList"); list.innerHTML='';
-  rec.forEach(a=>{
-    const row=document.createElement('div'); row.className='record-row';
-    row.innerHTML=`<div><strong>${escapeHtml(a.name)}</strong></div><div class="time">${formatElapsed(a.splitMs)}</div><button class="secondary" style="padding:7px 10px;">Edit</button>`;
-    row.querySelector('button').onclick=()=>openEdit(a.id);
+
+
+  /* RECORDED ATHLETES */
+
+  const recorded =
+    race.athletes
+      .filter(
+        a => a.recorded
+      )
+      .sort(
+        (a,b) =>
+          a.splitMs -
+          b.splitMs
+      );
+
+
+  $("recordedSection")
+    .classList
+    .toggle(
+      "hidden",
+      recorded.length === 0
+    );
+
+
+  const list =
+    $("recordedList");
+
+  list.innerHTML = "";
+
+
+  recorded.forEach(a => {
+
+    const row =
+      document.createElement("div");
+
+    row.className =
+      "record-row";
+
+
+    row.innerHTML = `
+
+      <div>
+
+        <strong>
+          ${escapeHtml(a.name)}
+        </strong>
+
+        <div class="small">
+          ${
+            a.source === "quick"
+            ? "Quick Capture"
+            : "Direct tap"
+          }
+        </div>
+
+      </div>
+
+      <div class="time">
+        ${formatElapsed(
+          a.splitMs
+        )}
+      </div>
+
+      <button
+        class="secondary"
+        style="padding:7px 10px;">
+        Edit
+      </button>
+
+    `;
+
+
+    row.querySelector("button")
+      .onclick =
+      () =>
+        openEdit(a.id);
+
+
     list.appendChild(row);
+
   });
-  $("undoBtn").disabled = !race.lastTapId;
+
+
+  $("captureBtn").disabled =
+    !race.running;
+
+
+  $("undoBtn").disabled =
+    race.actions.length === 0;
+
 }
-function recordAthlete(id){
-  if(!race?.running){ showWarning('Start the race clock before recording athletes.'); return; }
-  const a=race.athletes.find(x=>x.id===id); if(!a || a.recorded) return;
-  a.recorded=true; a.splitMs=nowElapsed(); race.lastTapId=id; hideWarning(); renderRace();
+
+
+
+/* =========================
+   QUICK CAPTURE
+========================= */
+
+
+function flashCapture() {
+
+  const button =
+    $("captureBtn");
+
+  button.classList.add("flash");
+
+
+  setTimeout(
+    () =>
+      button.classList
+        .remove("flash"),
+    120
+  );
+
+
+  if (navigator.vibrate) {
+
+    navigator.vibrate(35);
+
+  }
+
 }
-function undoLast(){
-  if(!race?.lastTapId) return;
-  const a=race.athletes.find(x=>x.id===race.lastTapId);
-  if(a){a.recorded=false;a.splitMs=null;}
-  const rec=race.athletes.filter(x=>x.recorded).sort((x,y)=>y.splitMs-x.splitMs);
-  race.lastTapId = rec.length ? rec[0].id : null;
+
+
+
+function quickCapture() {
+
+  if (!race?.running) {
+
+    showWarning(
+      "Start the race clock before recording athletes."
+    );
+
+    return;
+
+  }
+
+
+  const splitMs =
+    nowElapsed();
+
+
+  const id =
+    "q" +
+    Date.now() +
+    "_" +
+    Math.random()
+      .toString(36)
+      .slice(2,7);
+
+
+  const order =
+    ++race.captureSequence;
+
+
+  race.quickCaptures.push({
+
+    id:id,
+    order:order,
+    splitMs:splitMs,
+    assignedAthleteId:null
+
+  });
+
+
+  race.actions.push({
+
+    type:"capture",
+    captureId:id
+
+  });
+
+
+  hideWarning();
+
+  flashCapture();
+
   renderRace();
+
 }
-function showWarning(t){$("raceWarning").textContent=t;$("raceWarning").classList.remove('hidden');}
-function hideWarning(){$("raceWarning").classList.add('hidden');}
-function escapeHtml(s){ return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c])); }
 
-$("raceLevel").addEventListener('change',()=>{ $("rosterSelect").value=$("raceLevel").value; });
-$("rosterSelect").addEventListener('change',()=>{ $("raceLevel").value=$("rosterSelect").value; });
-$("loadRaceBtn").onclick=()=>{
-  const rosters=getRosters(); const level=$("raceLevel").value; const athletes=rosters[$("rosterSelect").value]||[];
-  if(!athletes.length){ alert('That roster is empty. Add athletes first.'); return; }
-  race={meet:$("meetName").value.trim(),level,checkpoint:$("checkpoint").value,athletes:athletes.map((name,i)=>({id:`a${i}`,name,recorded:false,splitMs:null})),running:false,startedPerf:null,accumulated:0,startAdjust:0,lastTapId:null};
-  $("setupPanel").classList.add('hidden'); $("racePanel").classList.remove('hidden'); $("timer").textContent='00:00.0'; renderRace();
-};
-$("startBtn").onclick=()=>{
-  if(!race.running){ race.running=true; race.startedPerf=performance.now(); $("startBtn").textContent='RUNNING'; $("startBtn").disabled=true; $("pauseBtn").disabled=false; tick(); }
-};
-$("pauseBtn").onclick=()=>{
-  if(race.running){ race.accumulated += performance.now()-race.startedPerf; race.running=false; cancelAnimationFrame(raf); $("startBtn").textContent='RESUME'; $("startBtn").disabled=false; $("pauseBtn").disabled=true; tick(); }
-};
-$("resetBtn").onclick=()=>{
-  if(!confirm('Reset this race timer and all unsaved taps?')) return;
-  race.athletes.forEach(a=>{a.recorded=false;a.splitMs=null}); race.running=false; race.startedPerf=null; race.accumulated=0; race.startAdjust=0; race.lastTapId=null; cancelAnimationFrame(raf); $("startBtn").textContent='START RACE'; $("startBtn").disabled=false; $("pauseBtn").disabled=true; $("timer").textContent='00:00.0'; renderRace();
-};
-$("minus1Btn").onclick=()=>{ race.startAdjust-=1000; tick(); };
-$("plus1Btn").onclick=()=>{ race.startAdjust+=1000; tick(); };
-$("undoBtn").onclick=undoLast;
-$("saveRaceBtn").onclick=()=>{
-  const rec=race.athletes.filter(a=>a.recorded);
-  if(!rec.length){ alert('No splits have been recorded yet.'); return; }
-  const all=getResults(); const savedAt=new Date().toISOString();
-  rec.forEach(a=>all.push({meet:race.meet||'Unnamed Meet',race:race.level,checkpoint:race.checkpoint,athlete:a.name,splitMs:Math.round(a.splitMs/100)*100,split:formatElapsed(a.splitMs),savedAt}));
-  setResults(all); alert(`${rec.length} split${rec.length===1?'':'s'} saved on this iPad.`);
-};
-$("backBtn").onclick=()=>{ $("racePanel").classList.add('hidden'); $("setupPanel").classList.remove('hidden'); cancelAnimationFrame(raf); };
 
-$("manageRosterBtn").onclick=()=>{ $("setupPanel").classList.add('hidden'); $("rosterPanel").classList.remove('hidden'); $("rosterName").value=$("raceLevel").value; $("rosterText").value=(getRosters()[$("rosterName").value]||[]).join('\n'); };
-$("loadRosterEditBtn").onclick=()=>{ $("rosterText").value=(getRosters()[$("rosterName").value]||[]).join('\n'); };
-$("rosterName").onchange=()=>$("loadRosterEditBtn").click();
-$("saveRosterBtn").onclick=()=>{
-  const names=$("rosterText").value.split(/\n/).map(normalizeName).filter(Boolean);
-  const unique=[...new Set(names)];
-  const rosters=getRosters(); rosters[$("rosterName").value]=unique; setRosters(rosters); refreshRosterSelect(); alert(`${unique.length} athletes saved for ${$("rosterName").value}.`);
-};
-$("rosterBackBtn").onclick=()=>{ $("rosterPanel").classList.add('hidden'); $("setupPanel").classList.remove('hidden'); refreshRosterSelect(); };
 
-function renderHistory(){
-  const rows=getResults().slice().sort((a,b)=>b.savedAt.localeCompare(a.savedAt));
-  const tb=$("historyBody"); tb.innerHTML='';
-  rows.forEach(r=>{ const tr=document.createElement('tr'); tr.innerHTML=`<td>${escapeHtml(r.meet)}</td><td>${escapeHtml(r.race)}</td><td>${escapeHtml(r.checkpoint)}</td><td>${escapeHtml(r.athlete)}</td><td><strong>${escapeHtml(r.split)}</strong></td><td>${new Date(r.savedAt).toLocaleString()}</td>`; tb.appendChild(tr); });
+/* =========================
+   ATHLETE ASSIGNMENT
+========================= */
+
+
+function athleteTap(id) {
+
+  if (!race?.running) {
+
+    showWarning(
+      "Start the race clock before recording athletes."
+    );
+
+    return;
+
+  }
+
+
+  const athlete =
+    race.athletes.find(
+      x => x.id === id
+    );
+
+
+  if (!athlete ||
+      athlete.recorded) {
+
+    return;
+
+  }
+
+
+  const unassigned =
+    race.quickCaptures
+      .filter(
+        c => !c.assignedAthleteId
+      )
+      .sort(
+        (a,b) =>
+          a.order - b.order
+      );
+
+
+  /*
+    If Quick Capture times
+    are waiting, assign the
+    oldest one to this athlete.
+  */
+
+  if (unassigned.length) {
+
+    const capture =
+      unassigned[0];
+
+
+    capture.assignedAthleteId =
+      id;
+
+
+    athlete.recorded =
+      true;
+
+
+    athlete.splitMs =
+      capture.splitMs;
+
+
+    athlete.source =
+      "quick";
+
+
+    race.actions.push({
+
+      type:"assign",
+      captureId:capture.id,
+      athleteId:id
+
+    });
+
+
+  } else {
+
+    /*
+      No Quick Capture waiting.
+      This works exactly like
+      the original app.
+    */
+
+    athlete.recorded =
+      true;
+
+
+    athlete.splitMs =
+      nowElapsed();
+
+
+    athlete.source =
+      "direct";
+
+
+    race.actions.push({
+
+      type:"direct",
+      athleteId:id
+
+    });
+
+  }
+
+
+  hideWarning();
+
+  renderRace();
+
 }
-$("historyBtn").onclick=()=>{ renderHistory(); $("setupPanel").classList.add('hidden'); $("historyPanel").classList.remove('hidden'); };
-$("historyBackBtn").onclick=()=>{ $("historyPanel").classList.add('hidden'); $("setupPanel").classList.remove('hidden'); };
-$("clearHistoryBtn").onclick=()=>{ if(confirm('Delete all saved results from this iPad?')){setResults([]);renderHistory();} };
-$("exportBtn").onclick=()=>{
-  const rows=getResults(); if(!rows.length){alert('No saved results to export.');return;}
-  const esc=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
-  const csv=['Meet,Race,Checkpoint,Athlete,Split,Split Milliseconds,Saved At',...rows.map(r=>[r.meet,r.race,r.checkpoint,r.athlete,r.split,r.splitMs,r.savedAt].map(esc).join(','))].join('\n');
-  const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`xc-meet-results-${new Date().toISOString().slice(0,10)}.csv`; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
-};
 
-function openEdit(id){ editingIndex=id; const a=race.athletes.find(x=>x.id===id); $("editAthlete").textContent=a.name; $("editTime").value=formatElapsed(a.splitMs); $("editModal").classList.remove('hidden'); }
-$("cancelEditBtn").onclick=()=>$("editModal").classList.add('hidden');
-$("saveEditBtn").onclick=()=>{ const ms=parseTime($("editTime").value); if(ms===null){alert('Use MM:SS.t, for example 06:24.3');return;} const a=race.athletes.find(x=>x.id===editingIndex); a.splitMs=ms; $("editModal").classList.add('hidden'); renderRace(); };
 
-window.addEventListener('online',()=>$("offlineMsg").textContent='Online now. The timer will still save locally on this iPad.');
-window.addEventListener('offline',()=>$("offlineMsg").textContent='Offline mode active — timing and saving still work on this iPad.');
-$("offlineMsg").textContent = navigator.onLine ? 'Ready. Once installed, the app can work offline at meets.' : 'Offline mode active — timing and saving still work on this iPad.';
+
+/* =========================
+   DELETE CAPTURE
+========================= */
+
+
+function deleteCapture(id) {
+
+  const capture =
+    race.quickCaptures.find(
+      x => x.id === id
+    );
+
+
+  if (!capture ||
+      capture.assignedAthleteId) {
+
+    return;
+
+  }
+
+
+  race.quickCaptures =
+    race.quickCaptures.filter(
+      x => x.id !== id
+    );
+
+
+  race.actions =
+    race.actions.filter(
+      action =>
+        !(
+          action.type ===
+          "capture" &&
+          action.captureId === id
+        )
+    );
+
+
+  renderRace();
+
+}
+
+
+
+/* =========================
+   UNDO
+========================= */
+
+
+function undoLast() {
+
+  const action =
+    race.actions.pop();
+
+
+  if (!action) return;
+
+
+  if (action.type === "assign") {
+
+    const capture =
+      race.quickCaptures.find(
+        x =>
+          x.id ===
+          action.captureId
+      );
+
+
+    const athlete =
+      race.athletes.find(
+        x =>
+          x.id ===
+          action.athleteId
+      );
+
+
+    if (capture) {
+
+      capture.assignedAthleteId =
+        null;
+
+    }
+
+
+    if (athlete) {
+
+      athlete.recorded =
+        false;
+
+      athlete.splitMs =
+        null;
+
+      athlete.source =
+        null;
+
+    }
+
+  }
+
+
+  else if (
+    action.type === "direct"
+  ) {
+
+    const athlete =
+      race.athletes.find(
+        x =>
+          x.id ===
+          action.athleteId
+      );
+
+
+    if (athlete) {
+
+      athlete.recorded =
+        false;
+
+      athlete.splitMs =
+        null;
+
+      athlete.source =
+        null;
+
+    }
+
+  }
+
+
+  else if (
+    action.type === "capture"
+  ) {
+
+    const capture =
+      race.quickCaptures.find(
+        x =>
+          x.id ===
+          action.captureId
+      );
+
+
+    if (
+      capture &&
+      !capture.assignedAthleteId
+    ) {
+
+      race.quickCaptures =
+        race.quickCaptures.filter(
+          x =>
+            x.id !==
+            action.captureId
+        );
+
+    }
+
+  }
+
+
+  renderRace();
+
+}
+
+
+
+/* =========================
+   VOICE RECORDING
+========================= */
+
+
+async function startVoice() {
+
+  if (
+    !navigator.mediaDevices
+      ?.getUserMedia ||
+    !window.MediaRecorder
+  ) {
+
+    showWarning(
+      "Voice recording is not supported by this browser. Quick Capture will still work."
+    );
+
+    return;
+
+  }
+
+
+  try {
+
+    if (audioUrl) {
+
+      URL.revokeObjectURL(
+        audioUrl
+      );
+
+      audioUrl = null;
+
+    }
+
+
+    $("audioArea").innerHTML =
+      "";
+
+
+    mediaStream =
+      await navigator
+        .mediaDevices
+        .getUserMedia({
+          audio:true
+        });
+
+
+    audioChunks = [];
+
+
+    mediaRecorder =
+      new MediaRecorder(
+        mediaStream
+      );
+
+
+    mediaRecorder
+      .ondataavailable =
+      event => {
+
+        if (event.data.size) {
+
+          audioChunks.push(
+            event.data
+          );
+
+        }
+
+      };
+
+
+    mediaRecorder.onstop =
+      () => {
+
+        const type =
+          mediaRecorder.mimeType ||
+          "audio/webm";
+
+
+        const blob =
+          new Blob(
+            audioChunks,
+            {type:type}
+          );
+
+
+        audioUrl =
+          URL.createObjectURL(
+            blob
+          );
+
+
+        const box =
+          document.createElement(
+            "div"
+          );
+
+
+        box.className =
+          "audio-card";
+
+
+        box.innerHTML = `
+
+          <strong>
+            🎧 Race Voice Recording
+          </strong>
+
+          <div class="small">
+            Replay this to check
+            the order you called
+            the athletes.
+          </div>
+
+        `;
+
+
+        const audio =
+          document.createElement(
+            "audio"
+          );
+
+
+        audio.controls =
+          true;
+
+
+        audio.src =
+          audioUrl;
+
+
+        box.appendChild(
+          audio
+        );
+
+
+        $("audioArea")
+          .innerHTML =
+          "";
+
+
+        $("audioArea")
+          .appendChild(
+            box
+          );
+
+
+        if (mediaStream) {
+
+          mediaStream
+            .getTracks()
+            .forEach(
+              track =>
+                track.stop()
+            );
+
+        }
+
+
+        mediaStream =
+          null;
+
+      };
+
+
+    /*
+      Data is collected every
+      second so the browser does
+      not hold one giant chunk.
+    */
+
+    mediaRecorder.start(1000);
+
+
+    $("voiceBtn")
+      .classList
+      .add("hidden");
+
+
+    $("stopVoiceBtn")
+      .classList
+      .remove("hidden");
+
+
+    $("stopVoiceBtn")
+      .classList
+      .add("voice-active");
+
+
+    $("voiceStatus")
+      .innerHTML = `
+
+        <span class="voice-dot">
+        </span>
+
+        <strong>
+          VOICE RECORDING NOW
+        </strong>
+
+        — call out athlete names
+        as they cross.
+
+      `;
+
+
+    hideWarning();
+
+  }
+
+
+  catch(error) {
+
+    showWarning(
+      "Microphone access was not allowed. Check this site's microphone permission. Quick Capture still works without voice."
+    );
+
+  }
+
+}
+
+
+
+function stopVoice() {
+
+  if (
+    mediaRecorder &&
+    mediaRecorder.state !==
+      "inactive"
+  ) {
+
+    mediaRecorder.stop();
+
+  }
+
+
+  $("voiceBtn")
+    .classList
+    .remove("hidden");
+
+
+  $("stopVoiceBtn")
+    .classList
+    .add("hidden");
+
+
+  $("voiceStatus")
+    .textContent =
+    "Voice recording stopped. Use the player below to replay the names you called.";
+
+}
+
+
+
+function cleanupVoice() {
+
+  if (
+    mediaRecorder &&
+    mediaRecorder.state !==
+      "inactive"
+  ) {
+
+    mediaRecorder.stop();
+
+  }
+
+
+  if (mediaStream) {
+
+    mediaStream
+      .getTracks()
+      .forEach(
+        track =>
+          track.stop()
+      );
+
+  }
+
+
+  mediaStream = null;
+
+}
+
+
+
+/* =========================
+   SETUP
+========================= */
+
+
+$("raceLevel")
+  .addEventListener(
+    "change",
+    () => {
+
+      $("rosterSelect").value =
+        $("raceLevel").value;
+
+    }
+  );
+
+
+$("rosterSelect")
+  .addEventListener(
+    "change",
+    () => {
+
+      $("raceLevel").value =
+        $("rosterSelect").value;
+
+    }
+  );
+
+
+$("loadRaceBtn").onclick =
+  () => {
+
+    const rosters =
+      getRosters();
+
+
+    const level =
+      $("raceLevel").value;
+
+
+    const athletes =
+      rosters[
+        $("rosterSelect").value
+      ] || [];
+
+
+    if (!athletes.length) {
+
+      alert(
+        "That roster is empty. Add athletes first."
+      );
+
+      return;
+
+    }
+
+
+    cleanupVoice();
+
+
+    $("audioArea").innerHTML =
+      "";
+
+
+    audioChunks = [];
+
+    audioUrl = null;
+
+
+    $("voiceBtn")
+      .classList
+      .remove("hidden");
+
+
+    $("stopVoiceBtn")
+      .classList
+      .add("hidden");
+
+
+    $("voiceStatus")
+      .textContent =
+      "Voice recording is optional. Allow microphone access when prompted.";
+
+
+    race = {
+
+      meet:
+        $("meetName")
+          .value
+          .trim(),
+
+      level:level,
+
+      checkpoint:
+        $("checkpoint").value,
+
+      athletes:
+        athletes.map(
+          (name,index) => ({
+
+            id:"a" + index,
+
+            name:name,
+
+            recorded:false,
+
+            splitMs:null,
+
+            source:null
+
+          })
+        ),
+
+      running:false,
+
+      startedPerf:null,
+
+      accumulated:0,
+
+      startAdjust:0,
+
+      quickCaptures:[],
+
+      captureSequence:0,
+
+      actions:[]
+
+    };
+
+
+    $("setupPanel")
+      .classList
+      .add("hidden");
+
+
+    $("racePanel")
+      .classList
+      .remove("hidden");
+
+
+    $("timer").textContent =
+      "00:00.0";
+
+
+    renderRace();
+
+  };
+
+
+
+/* =========================
+   START / PAUSE / RESET
+========================= */
+
+
+$("startBtn").onclick =
+  () => {
+
+    if (!race.running) {
+
+      race.running = true;
+
+      race.startedPerf =
+        performance.now();
+
+
+      $("startBtn")
+        .textContent =
+        "RUNNING";
+
+
+      $("startBtn")
+        .disabled =
+        true;
+
+
+      $("pauseBtn")
+        .disabled =
+        false;
+
+
+      tick();
+
+      renderRace();
+
+    }
+
+  };
+
+
+$("pauseBtn").onclick =
+  () => {
+
+    if (race.running) {
+
+      race.accumulated +=
+        performance.now() -
+        race.startedPerf;
+
+
+      race.running =
+        false;
+
+
+      cancelAnimationFrame(
+        raf
+      );
+
+
+      $("startBtn")
+        .textContent =
+        "RESUME";
+
+
+      $("startBtn")
+        .disabled =
+        false;
+
+
+      $("pauseBtn")
+        .disabled =
+        true;
+
+
+      tick();
+
+      renderRace();
+
+    }
+
+  };
+
+
+$("resetBtn").onclick =
+  () => {
+
+    if (
+      !confirm(
+        "Reset this race timer and all unsaved taps?"
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    race.athletes.forEach(
+      athlete => {
+
+        athlete.recorded =
+          false;
+
+        athlete.splitMs =
+          null;
+
+        athlete.source =
+          null;
+
+      }
+    );
+
+
+    race.running =
+      false;
+
+    race.startedPerf =
+      null;
+
+    race.accumulated =
+      0;
+
+    race.startAdjust =
+      0;
+
+    race.quickCaptures =
+      [];
+
+    race.captureSequence =
+      0;
+
+    race.actions =
+      [];
+
+
+    cancelAnimationFrame(
+      raf
+    );
+
+
+    $("startBtn")
+      .textContent =
+      "START RACE";
+
+
+    $("startBtn")
+      .disabled =
+      false;
+
+
+    $("pauseBtn")
+      .disabled =
+      true;
+
+
+    $("timer")
+      .textContent =
+      "00:00.0";
+
+
+    renderRace();
+
+  };
+
+
+$("minus1Btn").onclick =
+  () => {
+
+    race.startAdjust -=
+      1000;
+
+    tick();
+
+  };
+
+
+$("plus1Btn").onclick =
+  () => {
+
+    race.startAdjust +=
+      1000;
+
+    tick();
+
+  };
+
+
+$("undoBtn").onclick =
+  undoLast;
+
+
+$("captureBtn").onclick =
+  quickCapture;
+
+
+$("voiceBtn").onclick =
+  startVoice;
+
+
+$("stopVoiceBtn").onclick =
+  stopVoice;
+
+
+
+/* =========================
+   SAVE RACE
+========================= */
+
+
+$("saveRaceBtn").onclick =
+  () => {
+
+    const recorded =
+      race.athletes.filter(
+        athlete =>
+          athlete.recorded
+      );
+
+
+    if (!recorded.length) {
+
+      alert(
+        "No splits have been recorded yet."
+      );
+
+      return;
+
+    }
+
+
+    const unassigned =
+      race.quickCaptures.filter(
+        capture =>
+          !capture
+            .assignedAthleteId
+      );
+
+
+    if (
+      unassigned.length &&
+      !confirm(
+        unassigned.length +
+        " Quick Capture split" +
+        (
+          unassigned.length === 1
+          ? " is"
+          : "s are"
+        ) +
+        " still unassigned. Save the assigned athletes anyway?"
+      )
+    ) {
+
+      return;
+
+    }
+
+
+    const all =
+      getResults();
+
+
+    const savedAt =
+      new Date()
+        .toISOString();
+
+
+    recorded.forEach(
+      athlete => {
+
+        all.push({
+
+          meet:
+            race.meet ||
+            "Unnamed Meet",
+
+          race:
+            race.level,
+
+          checkpoint:
+            race.checkpoint,
+
+          athlete:
+            athlete.name,
+
+          splitMs:
+            Math.round(
+              athlete.splitMs /
+              100
+            ) * 100,
+
+          split:
+            formatElapsed(
+              athlete.splitMs
+            ),
+
+          savedAt:
+            savedAt
+
+        });
+
+      }
+    );
+
+
+    setResults(all);
+
+
+    alert(
+      recorded.length +
+      " split" +
+      (
+        recorded.length === 1
+        ? ""
+        : "s"
+      ) +
+      " saved on this device."
+    );
+
+  };
+
+
+
+$("backBtn").onclick =
+  () => {
+
+    cleanupVoice();
+
+    $("racePanel")
+      .classList
+      .add("hidden");
+
+    $("setupPanel")
+      .classList
+      .remove("hidden");
+
+    cancelAnimationFrame(
+      raf
+    );
+
+  };
+
+
+
+/* =========================
+   ROSTERS
+========================= */
+
+
+$("manageRosterBtn").onclick =
+  () => {
+
+    $("setupPanel")
+      .classList
+      .add("hidden");
+
+
+    $("rosterPanel")
+      .classList
+      .remove("hidden");
+
+
+    $("rosterName").value =
+      $("raceLevel").value;
+
+
+    $("rosterText").value =
+      (
+        getRosters()[
+          $("rosterName").value
+        ] || []
+      ).join("\n");
+
+  };
+
+
+$("loadRosterEditBtn").onclick =
+  () => {
+
+    $("rosterText").value =
+      (
+        getRosters()[
+          $("rosterName").value
+        ] || []
+      ).join("\n");
+
+  };
+
+
+$("rosterName").onchange =
+  () =>
+    $("loadRosterEditBtn")
+      .click();
+
+
+$("saveRosterBtn").onclick =
+  () => {
+
+    const names =
+      $("rosterText")
+        .value
+        .split(/\n/)
+        .map(normalizeName)
+        .filter(Boolean);
+
+
+    const unique =
+      [...new Set(names)];
+
+
+    const rosters =
+      getRosters();
+
+
+    rosters[
+      $("rosterName").value
+    ] =
+      unique;
+
+
+    setRosters(
+      rosters
+    );
+
+
+    refreshRosterSelect();
+
+
+    alert(
+      unique.length +
+      " athletes saved for " +
+      $("rosterName").value +
+      "."
+    );
+
+  };
+
+
+$("rosterBackBtn").onclick =
+  () => {
+
+    $("rosterPanel")
+      .classList
+      .add("hidden");
+
+
+    $("setupPanel")
+      .classList
+      .remove("hidden");
+
+
+    refreshRosterSelect();
+
+  };
+
+
+
+/* =========================
+   SAVED RESULTS
+========================= */
+
+
+function renderHistory() {
+
+  const rows =
+    getResults()
+      .slice()
+      .sort(
+        (a,b) =>
+          b.savedAt
+            .localeCompare(
+              a.savedAt
+            )
+      );
+
+
+  const body =
+    $("historyBody");
+
+
+  body.innerHTML =
+    "";
+
+
+  rows.forEach(
+    result => {
+
+      const row =
+        document.createElement(
+          "tr"
+        );
+
+
+      row.innerHTML = `
+
+        <td>
+          ${escapeHtml(
+            result.meet
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            result.race
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            result.checkpoint
+          )}
+        </td>
+
+        <td>
+          ${escapeHtml(
+            result.athlete
+          )}
+        </td>
+
+        <td>
+          <strong>
+            ${escapeHtml(
+              result.split
+            )}
+          </strong>
+        </td>
+
+        <td>
+          ${
+            new Date(
+              result.savedAt
+            ).toLocaleString()
+          }
+        </td>
+
+      `;
+
+
+      body.appendChild(
+        row
+      );
+
+    }
+  );
+
+}
+
+
+$("historyBtn").onclick =
+  () => {
+
+    renderHistory();
+
+
+    $("setupPanel")
+      .classList
+      .add("hidden");
+
+
+    $("historyPanel")
+      .classList
+      .remove("hidden");
+
+  };
+
+
+$("historyBackBtn").onclick =
+  () => {
+
+    $("historyPanel")
+      .classList
+      .add("hidden");
+
+
+    $("setupPanel")
+      .classList
+      .remove("hidden");
+
+  };
+
+
+$("clearHistoryBtn").onclick =
+  () => {
+
+    if (
+      confirm(
+        "Delete all saved results from this device?"
+      )
+    ) {
+
+      setResults([]);
+
+      renderHistory();
+
+    }
+
+  };
+
+
+
+/* =========================
+   CSV EXPORT
+========================= */
+
+
+$("exportBtn").onclick =
+  () => {
+
+    const rows =
+      getResults();
+
+
+    if (!rows.length) {
+
+      alert(
+        "No saved results to export."
+      );
+
+      return;
+
+    }
+
+
+    const esc =
+      value =>
+        '"' +
+        String(
+          value ?? ""
+        ).replace(
+          /"/g,
+          '""'
+        ) +
+        '"';
+
+
+    const csv = [
+
+      "Meet,Race,Checkpoint,Athlete,Split,Split Milliseconds,Saved At",
+
+      ...rows.map(
+        result =>
+          [
+
+            result.meet,
+
+            result.race,
+
+            result.checkpoint,
+
+            result.athlete,
+
+            result.split,
+
+            result.splitMs,
+
+            result.savedAt
+
+          ]
+          .map(esc)
+          .join(",")
+      )
+
+    ].join("\n");
+
+
+    const blob =
+      new Blob(
+        [csv],
+        {
+          type:"text/csv"
+        }
+      );
+
+
+    const url =
+      URL.createObjectURL(
+        blob
+      );
+
+
+    const a =
+      document.createElement(
+        "a"
+      );
+
+
+    a.href =
+      url;
+
+
+    a.download =
+      "xc-meet-results-" +
+      new Date()
+        .toISOString()
+        .slice(0,10) +
+      ".csv";
+
+
+    a.click();
+
+
+    setTimeout(
+      () =>
+        URL.revokeObjectURL(
+          url
+        ),
+      1000
+    );
+
+  };
+
+
+
+/* =========================
+   EDIT SPLIT
+========================= */
+
+
+function openEdit(id) {
+
+  editingIndex =
+    id;
+
+
+  const athlete =
+    race.athletes.find(
+      x =>
+        x.id === id
+    );
+
+
+  $("editAthlete")
+    .textContent =
+    athlete.name;
+
+
+  $("editTime")
+    .value =
+    formatElapsed(
+      athlete.splitMs
+    );
+
+
+  $("editModal")
+    .classList
+    .remove("hidden");
+
+}
+
+
+$("cancelEditBtn").onclick =
+  () =>
+    $("editModal")
+      .classList
+      .add("hidden");
+
+
+$("saveEditBtn").onclick =
+  () => {
+
+    const ms =
+      parseTime(
+        $("editTime").value
+      );
+
+
+    if (ms === null) {
+
+      alert(
+        "Use MM:SS.t, for example 06:24.3"
+      );
+
+      return;
+
+    }
+
+
+    const athlete =
+      race.athletes.find(
+        x =>
+          x.id ===
+          editingIndex
+      );
+
+
+    athlete.splitMs =
+      ms;
+
+
+    $("editModal")
+      .classList
+      .add("hidden");
+
+
+    renderRace();
+
+  };
+
+
+
+/* =========================
+   ONLINE / OFFLINE
+========================= */
+
+
+window.addEventListener(
+  "online",
+  () =>
+    $("offlineMsg")
+      .textContent =
+      "Online now. The timer will still save locally on this device."
+);
+
+
+window.addEventListener(
+  "offline",
+  () =>
+    $("offlineMsg")
+      .textContent =
+      "Offline mode active — timing and saving still work on this device."
+);
+
+
+$("offlineMsg").textContent =
+  navigator.onLine
+  ? "Ready. Once installed, the app can work offline at meets."
+  : "Offline mode active — timing and saving still work on this device.";
+
+
 refreshRosterSelect();
 
-if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{})); }
+
+
+/* =========================
+   SERVICE WORKER
+========================= */
+
+
+if (
+  "serviceWorker" in
+  navigator
+) {
+
+  window.addEventListener(
+    "load",
+    () =>
+      navigator
+        .serviceWorker
+        .register("./sw.js")
+        .catch(() => {})
+  );
+
+}
+
 </script>
+
 </body>
 </html>
